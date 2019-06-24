@@ -1,1 +1,0 @@
-Super advanced ftp-based chat program in batch

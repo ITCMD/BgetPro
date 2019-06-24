@@ -1,1 +1,0 @@
-Algorithmically draws an animated rotating 2D star.[Win10 Only]

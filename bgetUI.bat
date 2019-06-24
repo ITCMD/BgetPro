@@ -15,7 +15,7 @@ for /f "tokens=1-3" %%W in ('"bin\Mouse.exe"') do set /a "mouseC=%%W,mouseX=%%Y,
 %ifUserClicksButton[2]% set /a "dispMin+=20", "dispMax+=20"
 %ifUserClicksButton[3]% (
 	del /f /q "%~dp0\master.txt"
-	call :checkDownloadMethod "https://raw.githubusercontent.com/jahwi/bget-list/master/master.txt" "%~dp0\master.txt"
+	call :checkDownloadMethod "https://raw.githubusercontent.com/ITCMD/BgetPro/master/master/master.txt" "%~dp0\master.txt"
 )
 
 %ifUserToggles[0]SET_TOGGLE%
@@ -124,7 +124,7 @@ GOTO :EOF
 :get_recurse
 	title #### Downloading %scriptInfo[temp][fileName]% by %scriptInfo[temp][author]% . . .
 	echo Downloading %scriptInfo[temp][fileName]% by %scriptInfo[temp][author]% . . .
-	if not exist %script_location%\%scriptInfo[temp][name]% ( md "%script_location%\%scriptInfo[temp][name]%" ) else goto :eof
+	if not exist "%script_location%\%scriptInfo[temp][name]%" ( md "%script_location%\%scriptInfo[temp][name]%" ) else ( echo script already downloaded. & pause & goto :eof )
 	call :checkDownloadMethod "%scriptInfo[temp][scriptLocation]%" "%script_location%\%scriptInfo[temp][name]%\%scriptInfo[temp][fileName]%"
         FOR %%Q in (hash description author) DO (
             ECHO !scriptInfo[temp][%%Q]!>%script_location%\%scriptInfo[temp][name]%\%%Q.txt"
@@ -137,6 +137,7 @@ GOTO :EOF
 		call :unzip "%script_location%\%scriptInfo[temp][name]%\%scriptInfo[temp][fileName]%" "%script_location%\%scriptInfo[temp][name]%"
 	)
 	echo Download Complete.
+	pause
 	
 goto :eof
 
@@ -202,7 +203,7 @@ SET /A "game[col]=9","utilities[col]=10","tools[col]=11","library[col]=12","grap
 	call :createButton 93 12 "Update list"
 	call :createToggle "JS   PS   VBS  BITS CURL" 93 3 5 12 3
 	IF not exist master.txt (
-		call :checkDownloadMethod "https://raw.githubusercontent.com/jahwi/bget-list/master/master.txt" "%~dp0\master.txt"
+		call :checkDownloadMethod "https://raw.githubusercontent.com/ITCMD/BgetPro/master/master/master.txt" "%~dp0\master.txt"
 	)
 	for /f "tokens=1-9 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0master.txt"') do (
 		set /a "script_count+=1"
