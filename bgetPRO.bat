@@ -1,22 +1,48 @@
-@echo off & setlocal enableDelayedExpansion & mode 120,55 & call :macros & call :init
-:main
-TITLE BGET PRO UI USER-INTERFACE ^| PRESS S TO SEARCH
-call :updateToggleButtons
+title STARTING UP BGET-PRO UI . . .
+@ECHO OFF & cls & setlocal enableDelayedExpansion & mode 120,55 & call :macros & call :init
 
-FOR /L %%# in (%dispMin%, 1, %dispMax%) DO (
+:main
+TITLE BGET UI USER-INTERFACE ^| PRO ITCMD EXE EDITION
+
+call :updateToggleButtons
+IF defined category (
+    SET "script[list]=!scriptInfo[%category%][list][%page%]!"
+) else (
+    FOR /L %%G in (%dispMin%, 1, %dispMax%) DO (
+	
+		if /i "!searching!" equ "true" (
+			FOR /F "tokens=2,7 delims==" %%a in ("!scriptInfo[%%G]!") DO (
+                            FOR %%X in ("%%~a" "%%~b") DO (
+                                IF /I "!searchThis!" == "%%~X" set "script[list]=!script[list]! %%G"
+                            )
+                        )
+                        IF "!script[list]!" == "" (
+                            ECHO %esc%[%sbyp1%;%sbxp1%HNo results...
+                        )
+			set /a "dispMin=1", "dispMax=20"
+		) else (
+		
+			SET "script[list]=!script[list]! %%G"
+		)
+    )
+)
+set "searching=false"
+set "searchThis="
+
+FOR %%# in (%script[list]%) DO (
     SET /a "clickable[%%#]=(%%# - dispMin + 1) * 2 + 1"
     SET "disp[line]=!disp[line]!!line[%%#]!%ESC%[2B"
 )
-echo %esc%[1;1H%topl%%esc%[0m%esc%[3;0H%template%%botl%%esc%[0m%esc%[48;5;7m%esc%[38;5;16m%button[1]%%button[2]%%button[3]%%button[4]%%button[5]%%button[6]%%esc%[0m%toggleDisplay%%esc%[0m%esc%[2;1H³ ID  ³ Name             ³ Catagory      ³ Author               ³ Description              ³%ESC%[4;1H%disp[line]%%esc%[1;1H
-SET "disp[line]="
+echo %esc%[1;1H%topl%%esc%[0m%esc%[3;0H%template%%botl%%esc%[0m%esc%[48;5;7m%esc%[38;5;16m%button[1]%%button[2]%%button[3]%%button[4]%%button[5]%%button[6]%%esc%[0m%toggleDisplay%%esc%[0m%searchBox%%esc%[2;1H³ ID  ³ Name             ³ Catagory      ³ Author               ³ Description              ³%ESC%[4;1H%disp[line]%%esc%[1;1H
+SET "disp[line]="&SET "script[list]="
 
 for /f "tokens=1-3" %%W in ('"bin\Mouse.exe"') do set /a "mouseC=%%W,mouseX=%%Y,mouseY=%%X"
-%ifUserClicksButton[1]% if %dispMin% neq 1 set /a "dispMin-=20", "dispMax-=20"
-%ifUserClicksButton[2]% set /a "dispMin+=20", "dispMax+=20"
-%ifUserClicksButton[3]% (
-	del /f /q "%~dp0\master.txt"
-	call :checkDownloadMethod "https://raw.githubusercontent.com/ITCMD/BgetPro/master/master/master.txt" "%~dp0\master.txt"
-)
+
+%ifUserClicksButton[1]% ( IF defined category ( IF %page% NEQ 0 ( SET /A "page-=1" ) ) else IF %dispMin% NEQ 1 ( SET /A "dispMin-=20", "dispMax-=20" ) )
+%ifUserClicksButton[2]% ( IF defined category ( SET /A "page+=1" ) else ( SET /A "dispMin+=20", "dispMax+=20" ) )
+%ifUserClicksButton[3]% ( del /f /q "%~dp0\master.txt" & ( call :checkDownloadMethod "https://raw.githubusercontent.com/ITCMD/BgetPro/master/master/master.txt" "%~dp0\master.txt" ) )
+%ifUserClicksButton[4]% ( SET "page=1" & SET "category=game" )
+%ifUserClicksButton[5]% ( SET "category=" )
 
 %ifUserToggles[0]SET_TOGGLE%
 %ifUserToggles[1]SET_TOGGLE%
@@ -24,21 +50,19 @@ for /f "tokens=1-3" %%W in ('"bin\Mouse.exe"') do set /a "mouseC=%%W,mouseX=%%Y,
 %ifUserToggles[3]SET_TOGGLE%
 %ifUserToggles[4]SET_TOGGLE%
 
-set /a "scriptButton=mouseY / 2 + dispMin - 1"
+%ifUserClicksSearchBar% ( set /a "dispMax=script_count" & set "searching=true" & set /p "searchThis=%esc%[%sbyp1%;%sbxp1%HSearch: " )
 
-IF %mouseX% LEQ 92 (
-    IF %mouseY% LEQ 43 (
-        IF %mouseY% EQU !clickable[%scriptButton%]! (
-            CALL :GET_INFO
-            IF %mouseC% EQU 1 (
-                CALL :GET_RECURSE
-            ) else (
-                CALL :GET_DISP
-            )
-        )
-    )
-)
+set /a "scriptButton=mouseY / 2 + dispMin - 1"
+IF %mouseX% LEQ 92 ( IF %mouseY% LEQ 43 ( IF %mouseY% EQU !clickable[%scriptButton%]! (
+	CALL :GET_INFO & ( IF %mouseC% EQU 1 ( CALL :GET_RECURSE ) else ( CALL :GET_DISP ) )
+) ) )
 goto :main
+
+:createSearchBar x y c
+	set "searchBox=%esc%[%~2;%~1H%esc%[38;5;%~3mÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿%esc%[93D%esc%[B³                                                                                          ³%esc%[93D%esc%[BÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ%esc%[0m"
+	set /a "searchBox[Xmin]=%~1","searchBox[Xmax]=%~1 + 92","searchBox[Ymin]=%~2","searchBox[Ymax]=%~2 + 2", "sbxp1=%~1+1", "sbyp1=%~2+1"
+	set "ifUserClicksSearchBar=if ^!mouseY^! geq ^!searchBox[Ymin]^! if ^!mouseY^! leq ^!searchBox[Ymax]^! if ^!mouseX^! geq ^!searchBox[Xmin]^! if ^!mouseX^! leq ^!searchBox[Xmax]^!"
+goto :eof
 
 :createToggle
 	if not defined toggleBoxTemplate set "toggleBoxTemplate=ÚÄÄÄ¿%esc%[B%esc%[5D³   ³%esc%[B%esc%[5DÀÄÄÄÙ%esc%[2A"
@@ -122,7 +146,7 @@ SET "scriptInfo[disp]="
 GOTO :EOF
 
 :get_recurse
-	title #### Downloading %scriptInfo[temp][fileName]% by %scriptInfo[temp][author]% . . .
+	title Downloading %scriptInfo[temp][fileName]% by %scriptInfo[temp][author]%
 	echo Downloading %scriptInfo[temp][fileName]% by %scriptInfo[temp][author]% . . .
 	if not exist "%script_location%\%scriptInfo[temp][name]%" ( md "%script_location%\%scriptInfo[temp][name]%" ) else ( echo script already downloaded. & pause & goto :eof )
 	call :checkDownloadMethod "%scriptInfo[temp][scriptLocation]%" "%script_location%\%scriptInfo[temp][name]%\%scriptInfo[temp][fileName]%"
@@ -138,7 +162,6 @@ GOTO :EOF
 	)
 	echo Download Complete.
 	pause
-	
 goto :eof
 
 :unzip
@@ -201,28 +224,37 @@ SET /A "game[col]=9","utilities[col]=10","tools[col]=11","library[col]=12","grap
 	call :createButton 93 8 "Prev Page"
 	call :createButton 106 8 "Next Page"
 	call :createButton 93 12 "Update list"
+	CALL :CREATEBUTTON 93 16 "Games"
+	CALL :CREATEBUTTON 93 20 "All"
+	call :createSearchBar 1 44 10
 	call :createToggle "JS   PS   VBS  BITS CURL" 93 3 5 12 3
 	IF not exist master.txt (
 		call :checkDownloadMethod "https://raw.githubusercontent.com/ITCMD/BgetPro/master/master/master.txt" "%~dp0\master.txt"
 	)
 	for /f "tokens=1-9 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0master.txt"') do (
 		set /a "script_count+=1"
-			ECHO %ESC%[27;55H%ESC%[38;2;0;!script_count!;!script_count!mLoading !script_count!
-			REM ID name scriptLocation description fileName hash author category dateAdded
-		        SET "scriptInfo[!script_count!]="%%~a"="%%~b"="%%~c"="%%~d"="%%~e"="%%~f"="%%~g"="%%~h"="%%~i""
-                        FOR %%G in ("5=!script_count!=2" "17=%%~b=8" "14=%%~h=27" "21=%%~g=43" "25=%%~d=66") DO (
-                            FOR /F "tokens=1-4 delims==" %%A in ("%%~G=!script_count!") DO (
-                                SET "temp[script]=%%B"
-                                IF defined %%B[col] (
-                                    SET "col[temp]=%ESC%[38;5;!%%B[col]!m"
-                                )
-                                SET "line[%%D]=!line[%%D]!%ESC%[%%CG!col[temp]!!temp[script]:~0,%%A!%ESC%[0m"
-                                SET "col[temp]="
-                        )
+		ECHO %ESC%[27;55H%ESC%[38;2;0;!script_count!;!script_count!mLoading !script_count!
+		REM ID name scriptLocation description fileName hash author category dateAdded
+		SET "scriptInfo[!script_count!]="%%~a"="%%~b"="%%~c"="%%~d"="%%~e"="%%~f"="%%~g"="%%~h"="%%~i""
+        IF not defined scriptInfo[%%~h][page] (
+			SET "scriptInfo[%%~h][page]=0"
+            SET "scriptInfo[Category][%%~h]=-1"
+        )
+        SET /A "scriptInfo[Category][%%~h]+=1","check=scriptInfo[Category][%%~h] %% 20"
+        IF !check! EQU 0  SET /A "scriptInfo[%%~h][page]+=1"
+               
+        FOR /F %%X in ("!scriptInfo[%%~h][page]!") DO SET "scriptInfo[%%~h][list][%%X]=!scriptInfo[%%~h][list][%%X]! !script_count!"
+                
+        FOR %%G in ("5=!script_count!=2" "17=%%~b=8" "14=%%~h=27" "21=%%~g=43" "25=%%~d=66") DO (
+			FOR /F "tokens=1-4 delims==" %%A in ("%%~G=!script_count!") DO (
+				SET "temp[script]=%%B"
+				IF defined %%B[col] SET "col[temp]=%ESC%[38;5;!%%B[col]!m"
+                SET "line[%%D]=!line[%%D]!%ESC%[%%CG!col[temp]!!temp[script]:~0,%%A!%ESC%[0m"
+                SET "col[temp]="
             )
+        )
 	)
-
-	set /a "dispMin=1", "dispMax=20"
+	set /a "dispMin=1", "dispMax=20","page=1"
 	for /l %%a in (1,1,%dispMax%) do set "template=!template!ÃÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´%esc%[B%esc%[92D³     ³                  ³               ³                      ³                          ³%esc%[B%esc%[92D"
 
 	echo %esc%[0m & CLS
