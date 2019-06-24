@@ -9,7 +9,7 @@
 
 #this file is delimited thus:
 # [#], [script name] ,[script location (i.e. web address) ] ,[script description], [script's local filename], MD5hash, Author, Category, Last Modified, tags
-[#],ProTest,https://raw.githubusercontent.com/jahwi/bget-list/master/test.bat,The Bget Pro test file,test.bat,d20e619cbcdc632a9bec34d2cd46cb78,Jahwi,test files,Infinity,testfile
+[#],Pro-Test,https://raw.githubusercontent.com/jahwi/bget-list/master/test.bat,The Bget Pro test file,test.bat,d20e619cbcdc632a9bec34d2cd46cb78,Jahwi,test files,Infinity,testfile
 [#],2048,https://raw.githubusercontent.com/jahwi/bget-list/master/scripts/game/2048/2048.bat,2048 game in batch.,2048.bat,05848f5c9729ee53ac6aacf7b8f331bf,JustinQuinn,game,26/01/2019 03:50 PM,numbers;number,
 [#],2dstar,https://raw.githubusercontent.com/jahwi/bget-list/master/scripts/graphics/2dstar/2dstar.bat,Algorithmically draws an animated rotating 2D star.[Win10 Only],2dstar.bat,969b27e4c794d3cc1a515aedd53c9560,Icarus,graphics,26/01/2019 03:51 PM,shapes;shape,
 [#],adventure,https://raw.githubusercontent.com/jahwi/bget-list/master/scripts/game/adventure/adventure.bat,A pure batch implementation of the classic game-Adventure.,adventure.bat,ccc0ff72cb2f7e5f1472df5058e0ae4b,DaveBenham,game,26/01/2019 03:49 PM,rpg,
