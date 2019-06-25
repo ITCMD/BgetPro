@@ -40,9 +40,10 @@ for /f "tokens=1-3" %%W in ('"bin\Mouse.exe"') do set /a "mouseC=%%W,mouseX=%%Y,
 
 %ifUserClicksButton[1]% ( IF defined category ( IF %page% NEQ 0 ( SET /A "page-=1" ) ) else IF %dispMin% NEQ 1 ( SET /A "dispMin-=20", "dispMax-=20" ) )
 %ifUserClicksButton[2]% ( IF defined category ( SET /A "page+=1" ) else ( SET /A "dispMin+=20", "dispMax+=20" ) )
-%ifUserClicksButton[3]% ( del /f /q "%~dp0\master.txt" & ( call :checkDownloadMethod "https://raw.githubusercontent.com/ITCMD/BgetPro/master/master/master.txt" "%~dp0\master.txt" ) )
+%ifUserClicksButton[3]% ( del /f /q "%~dp0\master.txt" & ( call :checkDownloadMethod "https://raw.githubusercontent.com/ITCMD/BgetUnrestricted/master/master/master.txt" "%~dp0\master.txt" ) )
 %ifUserClicksButton[4]% ( SET "page=1" & SET "category=game" )
 %ifUserClicksButton[5]% ( SET "category=" )
+%ifUserClicksButton[6]% ( call :messageBox 10 8 12 15 10 16 "About Bget Unrestricted" "Bget Unrestricted is a clone of the BgetUI project a project that provides" "an advanced graphical interface to Bget, a service which hosts a plethera" "of popular batch scripts. Bget Unrestricted combines the original Bget" "sources, while also allowing custom picked scripts that use executables and" "other unorthadox accessories. These scripts may trigger antiviruses when" "they download EXEs, but are tested and are not harmful.")
 
 %ifUserToggles[0]SET_TOGGLE%
 %ifUserToggles[1]SET_TOGGLE%
@@ -226,10 +227,11 @@ SET /A "game[col]=9","utilities[col]=10","tools[col]=11","library[col]=12","grap
 	call :createButton 93 12 "Update list"
 	CALL :CREATEBUTTON 93 16 "Games"
 	CALL :CREATEBUTTON 93 20 "All"
+	CALL :CREATEBUTTON 93 24 "About"
 	call :createSearchBar 1 44 10
 	call :createToggle "JS   PS   VBS  BITS CURL" 93 3 5 12 3
 	IF not exist master.txt (
-		call :checkDownloadMethod "https://raw.githubusercontent.com/ITCMD/BgetPro/master/master/master.txt" "%~dp0\master.txt"
+		call :checkDownloadMethod "https://raw.githubusercontent.com/ITCMD/BgetUnrestricted/master/master/master.txt" "%~dp0\master.txt"
 	)
 	for /f "tokens=1-9 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0master.txt"') do (
 		set /a "script_count+=1"
@@ -259,3 +261,29 @@ SET /A "game[col]=9","utilities[col]=10","tools[col]=11","library[col]=12","grap
 
 	echo %esc%[0m & CLS
 goto :eof
+
+
+:messageBox
+    setlocal
+        for %%# in (%*) do ( set /a "args+=1"
+            if !args! lss 7 ( set /a "arg[!args!]=%%~#" ) else (
+                set "arg[!args!]=%%~#"
+                for %%e in (!args!) do ( set "s=!arg[%%e]!#" & set "len=0"
+                    ( for %%P in (8192 4096 2048 1024 512 256 128 64 32 16 8 4 2 1) do ( if "!s:~%%P,1!" NEQ "" ( set /a "len+=%%P" & set "s=!s:~%%P!" ))) & set /a "len[%%e]=len"
+                    if !len[%%e]! gtr !longest! set /a "longest=len[%%e]"
+        )))
+        
+        set /a "a2=longest + 2"
+        set "NL=%esc%[%a2%D%esc%[B"
+        for /l %%b in (%len[7]%,1,%longest%) do set "bar=!bar! "
+        set "box=%esc%[%arg[2]%;%arg[1]%H%esc%[48;5;%arg[3]%m%esc%[38;5;%arg[4]%m %arg[7]%!bar!%NL%"
+
+        for /l %%a in (8,1,%args%) do ( set "bar="
+            for /l %%b in (!len[%%a]!,1,%longest%) do set "bar=!bar! "
+            set "box=!box!%esc%[48;5;%arg[5]%m%esc%[38;5;%arg[6]%m !arg[%%a]!!bar!%NL%"
+        )
+    (endlocal & echo %box%)
+	pause >nul
+goto :eof
+
+
